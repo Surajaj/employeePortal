@@ -1,0 +1,53 @@
+<div>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="add-employee">
+					<button type="button" ng-click="isEditView = false" class="btn btn-primary no-border-radius m-b-20"><i class="ion-arrow-return-left"> </i> Back to Employees</button>
+					<h2>Edit Employee </h2>
+					<div class="col-md-12 p-l-0">
+						<form ng-submit="saveEmployee()">
+							<div class="col-md-6">
+							<div class="form-group">
+								<label>Name </label>
+								<input type="text" class="form-control" ng-model="employeeDetail.name" name="name"/>
+							</div>
+							<div class="form-group">
+								<label>Designation </label>
+								<input type="text" class="form-control" ng-model="employeeDetail.designation" name="designation"/>
+							</div>
+							<div class="form-group">
+								<label>Date of Birth </label>
+								<input type="text" class="form-control" ng-model="employeeDetail.dob" name="dob" />
+							</div>
+							</div>
+							<div class="col-md-6">
+							<div class="form-group">
+								<label>Age </label>
+								<input type="text" class="form-control" ng-model="employeeDetail.age" name="age" />
+							</div>
+							<div class="form-group">
+								<label>Mobile </label>
+								<input type="text" class="form-control" ng-model="employeeDetail.phone" name="phone" />
+							</div>
+							<div class="form-group">
+								<label>Email </label>
+								<input type="email" class="form-control" ng-model="employeeDetail.email" name="email" />
+							</div>
+							</div>
+							<div class="col-md-12">
+							<div class="form-group">
+								<label>Address </label>
+								<input type="text" class="form-control" ng-model="employeeDetail.address" name="address" />
+							</div>
+							</div>
+							<div class="col-md-12  m-b-40">
+								<button type="submit" class="btn btn-success btn-lg no-border-radius">Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
