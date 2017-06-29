@@ -10,6 +10,9 @@
 							<h4 class="m-t-10">{{employee.name}}  <span class="pull-right"><a href="javascript:;" ng-click="editEmployee(employee)" title="Edit"><i class="ion-edit"></i></a><strong class="text-danger pointer m-l-20" ng-click="deleteEmployee(employee)"><i class="ion-close-round" title="Delete"></i></strong></span></h4>
 						</li>
 					</ul>
+					<div ng-if="employeeRecords.length === 0"> 
+						<h4>No Records found. Please <strong>Add Employee</strong></h4>
+					</div>
 				</div>
 				<div ng-show="isEditView">
 					<employee-detail></employee-detail>

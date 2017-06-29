@@ -2,48 +2,46 @@
 angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
     .config(['$routeProvider', '$locationProvider','$compileProvider', function($routeProvider, $locationProvider, $compileProvider) {
         $compileProvider.debugInfoEnabled(false); // Disable debug mode
-        
+        $compileProvider.commentDirectivesEnabled(false); // Disable Compilation of Comment Directive
+        $compileProvider.cssClassDirectivesEnabled(false);   // Disable Compilation of Class Directive     
         $locationProvider.html5Mode(true); // Remove # from url
 		// Routes
         for(var path in window.routes) {
             $routeProvider.when(path, window.routes[path]);
         }   
-    
-        $routeProvider.otherwise({redirectTo: "/login"});
+        $routeProvider.otherwise({redirectTo: "/login"}); // If no url match found
     }])
     .run(['$rootScope','SessionService','$location', function($rootScope,SessionService,$location) {
         $rootScope.$on("$locationChangeStart", function(event, next, current) {
             for(var i in window.routes) {
                 if(next.indexOf(i) != -1) {
+                    if (SessionService.getUserAuthenticated() && next.endsWith('login')) {
+                        $location.path("/admin/dashboard");
+                    };
                     if(window.routes[i].requireLogin && !SessionService.getUserAuthenticated()) {
-                        swal("You need to be authenticated to see this page. Please login!");
                         event.preventDefault();
+                        swal("You need to be authenticated to see this page. Please login!");
                         $location.path("/login");
                     }
                 }
             }
-        });   
+        });
     }])     
-    .controller("MainCtrl", ['$scope', "$rootScope", function($scope, $rootScope) {
+    .controller("MainCtrl", ['$scope', "$rootScope", '$location', 'SessionService', function($scope, $rootScope, $location, SessionService) {
         $rootScope.employees = JSON.parse(localStorage.getItem("employeesList")) || [];
-
+        $rootScope.userName = localStorage.getItem('user_admin_name') || null;
     }])
     .controller("adminCtrl", [ '$scope', '$location', 'SessionService', '$rootScope', '$q' , function($scope, $location, SessionService, $rootScope, $q) {
-        var Promise = $q.resolve($rootScope.employees);
-        $scope.employeeRecords = Promise.$$state.value;
-
-        // var dataPromise = localStorage.getItem('employeesList');
-        // dataPromise.then(function(data) {
-        //     console.log("Data is ", data);
-        //     $scope.employeeRecords = data;
-        // })
-        
+        var Promise = $q.resolve($rootScope.employees); // Set employee records to promise
+        $scope.employeeRecords = Promise.$$state.value; // Fetch employee records by promise
+        // Logout
         $scope.logout = function() {
-            SessionService.setUserAuthenticated(true);
-            localStorage.removeItem('status');   
-            $rootScope.loggedIn = false; 
+            SessionService.setUserAuthenticated(false);
+            localStorage.removeItem('status_login');
+            localStorage.removeItem('user_admin_name');
             $location.path("/login");
         };
+        // Delete Employee
         $scope.deleteEmployee = function(employee) {
             swal({
               title: "Are you sure?",
@@ -61,12 +59,14 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
               swal("Deleted!", "Employee deleted", "success");
             });
         }
-        $scope.isEditView = false; // Set employee edit view to false
+        $scope.isEditView = false; // Set default employee edit view to false
+        // Edit Employee
         $scope.editEmployee = function(employee) {    
             $scope.isEditView = true;
             $scope.employeeDetail = employee;
             $scope.editIndex = $rootScope.employees.indexOf(employee);
         };
+        // Save Employee
         $scope.saveEmployee = function() {
             $rootScope.employees[$scope.editIndex] = $scope.employeeDetail;
             localStorage.setItem("employeesList", JSON.stringify($rootScope.employees));
@@ -75,48 +75,41 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
         };
     }])
     .controller("addEmployeeCtrl", [ '$location', '$scope', '$rootScope', function($location, $scope, $rootScope) {
+        // Add Employee
         this.addEmployee = function() {
             $rootScope.employees.push($scope.employee);
             localStorage.setItem("employeesList", JSON.stringify($rootScope.employees));
             swal("Employee details saved!");
-            $location.path("/admin/dashboard")
+            $location.path("/admin/dashboard");
         };
     }])
     .controller("loginCtrl", [ '$scope', '$location', 'SessionService', '$rootScope', function($scope,$location, SessionService, $rootScope) {
-        $scope.user = {};
-        // Google
+        // Google Login
+        // On Login success
         $scope.$on('event:google-plus-signin-success', function (event, authResult) {
             // User successfully authorized the G+ App!
-            // console.log('Signed in on google!', authResult);
-            $location.path("/admin/dashboard");
+            $rootScope.userName = authResult.w3.ofa;
+            localStorage.setItem('user_admin_name', $rootScope.userName);
             SessionService.setUserAuthenticated(true);
-            localStorage.setItem('status', true);
+            localStorage.setItem('status_login', true);
+            $location.path("/admin/dashboard");
             $scope.$apply();
-            $scope.user.email = authResult.w3.U3;
-            $scope.user.first_name = authResult.w3.ofa;
-            $scope.user.last_name = authResult.w3.wea;            
         });
+        // On Login fail
         $scope.$on('event:google-plus-signin-failure', function (event, authResult) {
             // User has not authorized the G+ App!
-            // console.log('Not signed into Google Plus.');
-            localStorage.removeItem('status');
-            $rootScope.loggedIn = false;
+            swal('Authentication failed. Pleas try agian');
         }); 
     }])
-    .service('SessionService', ['$rootScope', function($rootScope){
-        var userIsAuthenticated = localStorage.getItem('status') || false;;
-
-        var value =  null;
-        
-        if (userIsAuthenticated) {
-            $rootScope.loggedIn = true;
-            //SessionService.setUserAuthenticated(value);
-        }   
+    .service('SessionService', ['$rootScope', '$location', function($rootScope, $location){
+        // Check if user was logged in, if not initialize 
+        var userIsAuthenticated = localStorage.getItem('status_login') || null;
+        var value =  null; // Initialize value
+        // Set user state  
         this.setUserAuthenticated = function(value){
             userIsAuthenticated = value;
         };
-        
-
+        // Get user state
         this.getUserAuthenticated = function(){
             return userIsAuthenticated;
         };
@@ -133,9 +126,7 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
             templateUrl: '../../views/edit_employee.html'
         }
     })
-
-    .directive('ageVerify', ageVerify);
-      function ageVerify() {   
+    .directive('ageVerify', function () {   
           return {
               restrict: 'A', // only activate on element attribute
               require: '?ngModel', // get a hold of NgModelController
@@ -152,6 +143,7 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
                       validate();
                   });
 
+                  // Validate 
                   var validate = function() {
                     // Calculate age
                     var ageDifMs = Date.now() - new Date(attrs.ageVerify);
@@ -165,7 +157,7 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
                   };
               }
           }
-      };
+      });
 window.routes =
 {
     '/login': {
@@ -179,10 +171,5 @@ window.routes =
     '/admin/add-employee': {
         templateUrl: "../../views/add_employee.html", 
         requireLogin: true
-    },
-    '/admin/edit-employee': {
-        templateUrl: "../../views/edit_employee.html", 
-        requireLogin: true
     }
-
 };  

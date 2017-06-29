@@ -336,7 +336,7 @@ input[type="number"] {
 .btn-google {
   background:#d34836;
 }
-.admin-login, .admin-dashboard {
+.admin-login {
     width: 500px;
 }
 .employee_list {
@@ -347,4 +347,7 @@ input[type="number"] {
 }
 .sweet-alert h2 {
     font-family: 'PT Sans', sans-serif;
+}
+.form-group label {
+    padding-left: 15px;
 }
