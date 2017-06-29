@@ -1,6 +1,8 @@
 "use strict()";
 angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
-    .config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+    .config(['$routeProvider', '$locationProvider','$compileProvider', function($routeProvider, $locationProvider, $compileProvider) {
+        $compileProvider.debugInfoEnabled(false); // Disable debug mode
+        
         $locationProvider.html5Mode(true); // Remove # from url
 		// Routes
         for(var path in window.routes) {
@@ -9,7 +11,7 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
     
         $routeProvider.otherwise({redirectTo: "/login"});
     }])
-    .run(function($rootScope,SessionService,$location) {
+    .run(['$rootScope','SessionService','$location', function($rootScope,SessionService,$location) {
         $rootScope.$on("$locationChangeStart", function(event, next, current) {
             for(var i in window.routes) {
                 if(next.indexOf(i) != -1) {
@@ -21,12 +23,12 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
                 }
             }
         });   
-    })     
-    .controller("MainCtrl", function($scope, $rootScope) {
+    }])     
+    .controller("MainCtrl", ['$scope', "$rootScope", function($scope, $rootScope) {
         $rootScope.employees = JSON.parse(localStorage.getItem("employeesList")) || [];
 
-    })
-    .controller("adminCtrl", function($scope, $location, SessionService, $rootScope, $q) {
+    }])
+    .controller("adminCtrl", [ '$scope', '$location', 'SessionService', '$rootScope', '$q' , function($scope, $location, SessionService, $rootScope, $q) {
         var Promise = $q.resolve($rootScope.employees);
         $scope.employeeRecords = Promise.$$state.value;
 
@@ -71,21 +73,21 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
             swal("Employee details saved!");
             $scope.isEditView = false;
         };
-    })
-    .controller("addEmployeeCtrl", function($location, $scope, $rootScope) {
+    }])
+    .controller("addEmployeeCtrl", [ '$location', '$scope', '$rootScope', function($location, $scope, $rootScope) {
         this.addEmployee = function() {
             $rootScope.employees.push($scope.employee);
             localStorage.setItem("employeesList", JSON.stringify($rootScope.employees));
             swal("Employee details saved!");
             $location.path("/admin/dashboard")
         };
-    })
-    .controller("loginCtrl", function($scope,$location, SessionService, $rootScope) {
+    }])
+    .controller("loginCtrl", [ '$scope', '$location', 'SessionService', '$rootScope', function($scope,$location, SessionService, $rootScope) {
         $scope.user = {};
         // Google
         $scope.$on('event:google-plus-signin-success', function (event, authResult) {
             // User successfully authorized the G+ App!
-            console.log('Signed in on google!', authResult);
+            // console.log('Signed in on google!', authResult);
             $location.path("/admin/dashboard");
             SessionService.setUserAuthenticated(true);
             localStorage.setItem('status', true);
@@ -96,12 +98,12 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
         });
         $scope.$on('event:google-plus-signin-failure', function (event, authResult) {
             // User has not authorized the G+ App!
-            console.log('Not signed into Google Plus.');
+            // console.log('Not signed into Google Plus.');
             localStorage.removeItem('status');
             $rootScope.loggedIn = false;
         }); 
-    })
-    .service('SessionService', function($rootScope){
+    }])
+    .service('SessionService', ['$rootScope', function($rootScope){
         var userIsAuthenticated = localStorage.getItem('status') || false;;
 
         var value =  null;
@@ -118,7 +120,7 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
         this.getUserAuthenticated = function(){
             return userIsAuthenticated;
         };
-    })
+    }])
     .directive('headerView', function() {
         return {
             restrict: 'E',

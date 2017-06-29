@@ -2,46 +2,72 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12">
-				<div class="add-employee">
+				<div class="edit-employee">
 					<button type="button" ng-click="isEditView = false" class="btn btn-primary no-border-radius m-b-20"><i class="ion-arrow-return-left"> </i> Back to Employees</button>
 					<h2>Edit Employee </h2>
 					<div class="col-md-12 p-l-0">
-						<form ng-submit="saveEmployee()">
+						<form ng-submit="saveEmployee()" name="editEmployeeForm">
 							<div class="col-md-6">
-							<div class="form-group">
+							<div class="form-group" ng-class="{ 'has-error' : editEmployeeForm.name.$touched && editEmployeeForm.name.$invalid}">
 								<label>Name </label>
-								<input type="text" class="form-control" ng-model="employeeDetail.name" name="name"/>
+								<input type="text" class="form-control" ng-model="employeeDetail.name" name="name" required ng-pattern="/^[a-zA-Z ]*$/"/>
+								<div class="help-block" ng-messages="editEmployeeForm.name.$error" ng-show="editEmployeeForm.name.$touched">
+									<p ng-message="required">This field is required</p>
+									<p ng-message="pattern">Can only contain alphabets</p>
+								</div>								
 							</div>
-							<div class="form-group">
+							<div class="form-group" ng-class="{ 'has-error' : editEmployeeForm.designation.$touched && editEmployeeForm.designation.$invalid}">
 								<label>Designation </label>
-								<input type="text" class="form-control" ng-model="employeeDetail.designation" name="designation"/>
+								<input type="text" class="form-control" ng-model="employeeDetail.designation" name="designation" required />
+								<div class="help-block" ng-messages="editEmployeeForm.designation.$error" ng-show="editEmployeeForm.designation.$touched">
+									<p ng-message="required">This field is required</p>
+								</div>								
 							</div>
-							<div class="form-group">
+							<div class="form-group" ng-class="{ 'has-error' : editEmployeeForm.dob.$touched && editEmployeeForm.dob.$invalid}">
 								<label>Date of Birth </label>
-								<input type="text" class="form-control" ng-model="employeeDetail.dob" name="dob" />
+								<input type="text" class="form-control " ng-model="employeeDetail.dob" name="dob" required ng-pattern="/^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/"/>
+								<div class="help-block" ng-messages="editEmployeeForm.dob.$error" ng-show="editEmployeeForm.dob.$touched">
+									<p ng-message="required">This field is required</p>
+									<p ng-message="pattern">Please enter date in mm/dd/yyyy</p>
+								</div>							
 							</div>
 							</div>
 							<div class="col-md-6">
-							<div class="form-group">
+							<div class="form-group" ng-class="{ 'has-error' : editEmployeeForm.age.$touched && editEmployeeForm.age.$invalid}">
 								<label>Age </label>
-								<input type="text" class="form-control" ng-model="employeeDetail.age" name="age" />
+								<input type="text" class="form-control" ng-model="employeeDetail.age" name="age" required ng-pattern="/^\d+$/" age-verify="{{employeeDetail.dob}}"/>
+								<div class="help-block" ng-messages="editEmployeeForm.age.$error" ng-show="editEmployeeForm.age.$touched">
+									<p ng-message="required">This field is required</p>
+									<p ng-message="pattern">Can only contain numerics</p>
+									<p ng-message="ageVerify">Age do not match as per Date of Birth</p>
+								</div>											
 							</div>
-							<div class="form-group">
+							<div class="form-group" ng-class="{ 'has-error' : editEmployeeForm.phone.$touched && editEmployeeForm.phone.$invalid}">
 								<label>Mobile </label>
-								<input type="text" class="form-control" ng-model="employeeDetail.phone" name="phone" />
+								<input type="text" class="form-control" ng-model="employeeDetail.phone" name="phone" required ng-pattern="/^\d{12}$/"/>
+								<div class="help-block" ng-messages="editEmployeeForm.phone.$error" ng-show="editEmployeeForm.phone.$touched">
+									<p ng-message="required">This field is required</p>
+									<p ng-message="pattern">Enter valid 12 digit phone number</p>
+								</div>								
 							</div>
-							<div class="form-group">
+							<div class="form-group" ng-class="{ 'has-error' : editEmployeeForm.email.$touched && editEmployeeForm.email.$invalid}">
 								<label>Email </label>
-								<input type="email" class="form-control" ng-model="employeeDetail.email" name="email" />
+								<input type="email" class="form-control" ng-model="employeeDetail.email" name="email" required ng-pattern='/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/'/>
+								<div class="help-block" ng-messages="editEmployeeForm.email.$error" ng-show="editEmployeeForm.email.$touched">
+									<p ng-message="required">This field is required</p>
+									<p ng-message="pattern">Enter valid email address</p>
+								</div>								
 							</div>
 							</div>
 							<div class="col-md-12">
-							<div class="form-group">
+							<div class="form-group" ng-class="{ 'has-error' : editEmployeeForm.address.$touched && editEmployeeForm.address.$invalid}">
 								<label>Address </label>
-								<input type="text" class="form-control" ng-model="employeeDetail.address" name="address" />
+								<input type="text" class="form-control" ng-model="employeeDetail.address" name="address" required />	<div class="help-block" ng-messages="editEmployeeForm.address.$error" ng-show="editEmployeeForm.address.$touched">
+									<p ng-message="required">This field is required</p>
+								</div>										
 							</div>
 							</div>
-							<div class="col-md-12  m-b-40">
+							<div class="col-md-12 m-b-40">
 								<button type="submit" class="btn btn-success btn-lg no-border-radius">Submit</button>
 							</div>
 						</form>
