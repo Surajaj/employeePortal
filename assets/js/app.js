@@ -27,7 +27,7 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
             }
         });
     }])     
-    .controller("MainCtrl", ['$scope', "$rootScope", '$location', 'SessionService', function($scope, $rootScope, $location, SessionService) {
+    .controller("MainCtrl", ["$rootScope", function( $rootScope) {
         $rootScope.employees = JSON.parse(localStorage.getItem("employeesList")) || [];
         $rootScope.userName = localStorage.getItem('user_admin_name') || null;
     }])
@@ -101,7 +101,7 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
             swal('Authentication failed. Pleas try agian');
         }); 
     }])
-    .service('SessionService', ['$rootScope', '$location', function($rootScope, $location){
+    .service('SessionService', function(){
         // Check if user was logged in, if not initialize 
         var userIsAuthenticated = localStorage.getItem('status_login') || null;
         var value =  null; // Initialize value
@@ -113,7 +113,7 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
         this.getUserAuthenticated = function(){
             return userIsAuthenticated;
         };
-    }])
+    })
     .directive('headerView', function() {
         return {
             restrict: 'E',
