@@ -1,7 +1,7 @@
 "use strict()";
 angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
     .config(['$routeProvider', '$locationProvider','$compileProvider', function($routeProvider, $locationProvider, $compileProvider) {
-        // $compileProvider.debugInfoEnabled(false); // Disable debug mode
+        $compileProvider.debugInfoEnabled(false); // Disable debug mode
         $compileProvider.commentDirectivesEnabled(false); // Disable Compilation of Comment Directive
         $compileProvider.cssClassDirectivesEnabled(false);   // Disable Compilation of Class Directive     
         $locationProvider.html5Mode(true); // Remove # from url
@@ -33,6 +33,7 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
     }])
     .controller("adminCtrl", [ '$scope', '$location', 'SessionService', '$rootScope', '$q' , function($scope, $location, SessionService, $rootScope, $q) {
         
+        // Standard way of promise
         $scope.get_employees = function (records) {
             return $q(function(resolve, reject) {
                 setTimeout(function() {
@@ -52,10 +53,19 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
             swal('Failed to fetch records, ' + reason);
         });
         
+        // Other way
+        // var Promise = $q.resolve($rootScope.employees); // Set employee records to promise
+        // Promise.then(function(records) {
+        //     $scope.employeeRecords = records;
+        // }, function(reason) {
+        //     swal('Failed to fetch records, ' + reason);
+        // });
+
+        // Lame way
         // var Promise = $q.resolve($rootScope.employees); // Set employee records to promise
         // $scope.employeeRecords = Promise.$$state.value; // Fetch employee records by promise
 
-        4// Logout
+        // Logout
         $scope.logout = function() {
             SessionService.setUserAuthenticated(false);
             localStorage.removeItem('status_login');
