@@ -1,7 +1,7 @@
 "use strict()";
 angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
     .config(['$routeProvider', '$locationProvider','$compileProvider', function($routeProvider, $locationProvider, $compileProvider) {
-        $compileProvider.debugInfoEnabled(false); // Disable debug mode
+        // $compileProvider.debugInfoEnabled(false); // Disable debug mode
         $compileProvider.commentDirectivesEnabled(false); // Disable Compilation of Comment Directive
         $compileProvider.cssClassDirectivesEnabled(false);   // Disable Compilation of Class Directive     
         $locationProvider.html5Mode(true); // Remove # from url
@@ -32,9 +32,30 @@ angular.module("myApp", ['ngRoute', 'directive.g+signin', 'ngMessages'])
         $rootScope.userName = localStorage.getItem('user_admin_name') || null;
     }])
     .controller("adminCtrl", [ '$scope', '$location', 'SessionService', '$rootScope', '$q' , function($scope, $location, SessionService, $rootScope, $q) {
-        var Promise = $q.resolve($rootScope.employees); // Set employee records to promise
-        $scope.employeeRecords = Promise.$$state.value; // Fetch employee records by promise
-        // Logout
+        
+        $scope.get_employees = function (records) {
+            return $q(function(resolve, reject) {
+                setTimeout(function() {
+                    if (records) {
+                        resolve(records);
+                    } else {
+                        reject('Not found');
+                    }
+                }, 500);
+            });
+        }
+
+        var promise = $scope.get_employees($rootScope.employees);
+        promise.then(function(records) {
+            $scope.employeeRecords = records;
+        }, function(reason) {
+            swal('Failed to fetch records, ' + reason);
+        });
+        
+        // var Promise = $q.resolve($rootScope.employees); // Set employee records to promise
+        // $scope.employeeRecords = Promise.$$state.value; // Fetch employee records by promise
+
+        4// Logout
         $scope.logout = function() {
             SessionService.setUserAuthenticated(false);
             localStorage.removeItem('status_login');
